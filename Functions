@@ -1,0 +1,419 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<conio.h>
+
+// Structure to store student information
+struct student
+{
+    char name[35];
+    char cl[20];
+    int rollno;
+};
+
+// Function prototypes
+void input();
+void display();
+void search();
+void searchbyroll();
+void searchbyname();
+void modify();
+void del();
+void sortbyroll();
+void sortbyalphabet();
+
+// File pointer and size of the structure student
+FILE *fp;
+long size = sizeof(struct student);
+
+// Main function
+int main()
+{
+    int ch;
+    while(1)
+    {
+        // Displaying the menu options
+        printf("<== Student Management System ==>\n");
+        printf(" 1. Admission\n");
+        printf(" 2. Student Info\n ");
+        printf("3. Search a student\n ");
+        printf("4. Modify/Update a student\n ");
+        printf("5. Delete a student\n ");
+        printf("6. Sort by roll number\n ");
+        printf("7. Sort by name\n ");
+        printf("0. Exit\n\n");
+
+        printf("Enter a choice: ");
+        scanf("%d", &ch);
+
+        // Performing actions based on user's choice.
+        switch(ch)
+        {
+            case 0:
+                exit(0);
+            case 1:
+                input();
+                break;
+            case 2:
+                display();
+                break;
+            case 3:
+                search();
+                break;
+            case 4:
+                modify();
+                break;
+            case 5:
+                del();
+                break;
+            case 6:
+                sortbyroll();
+                break;
+            case 7:
+                sortbyalphabet();
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+        printf("\n\nPress any key to continue!\n");
+        getch();
+    }
+    return 0;
+}
+
+// Function to input student information
+void input()
+{
+    system("cls");
+    fp = fopen("Just.txt", "ab");
+
+    if(fp == NULL)
+    {
+        printf("File cannot be opened or created.\n");
+    }
+    else
+    {
+        struct student s;
+        printf("Enter a student name: ");
+        fflush(stdin);
+        gets(s.name);
+        printf("Enter class: ");
+        fflush(stdin);
+        gets(s.cl);
+        printf("Enter roll no: ");
+        scanf("%d", &s.rollno);
+        fwrite(&s, size, 1, fp);
+        printf("Record saved successfully.\n\n");
+        fclose(fp);
+    }
+}
+
+// Function to display student information
+void display()
+{
+    system("cls");
+    printf("<== Student Info ==>\n");
+    printf("%-30s %-20s %-10s\n", "Name", "Class", "Rollno");
+    fp = fopen("Just.txt", "rb");
+
+    if(fp == NULL)
+    {
+        printf("File cannot be opened or created.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp) == 1)
+        {
+            printf("%-30s %-20s %-10d\n", s.name, s.cl, s.rollno);
+        }
+    }
+    fclose(fp);
+}
+
+// Function to search for a student
+void search()
+{
+    int ch;
+
+    system("cls");
+
+    printf("<== Search ==>\n");
+    printf("1. Search By Roll\n");
+    printf("2. Search By name\n");
+    printf("0. Back to main menu\n\n");
+
+    printf("Enter your choice:");
+    scanf("%d", &ch);
+
+    switch(ch)
+    {
+        case 0:
+            main();
+            break;
+        case 1:
+            searchbyroll();
+            break;
+        case 2:
+            searchbyname();
+            break;
+        default:
+            printf("Invalid choice. Please try again.\n");
+    }
+    getch();
+}
+
+// Function to search for a student by roll number
+void searchbyroll()
+{
+    int r1, f = 0;
+    printf("Enter a roll no to search:");
+    scanf("%d", &r1);
+    printf("%-30s %-20s %-10s\n", "Name", "Class", "Rollno");
+    fp = fopen("Just.txt", "rb");
+
+    if(fp == NULL)
+    {
+        printf("File cannot be opened or created.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp) == 1)
+        {
+            if(r1 == s.rollno)
+            {
+                f = 1;
+                printf("%-30s %-20s %-10d\n", s.name, s.cl, s.rollno);
+                break;
+            }
+        }
+    }
+    fclose(fp);
+
+    if(f == 0)
+    {
+        printf("Record not found.\n");
+    }
+    else
+    {
+        printf("Record found successfully!\n");
+    }
+}
+
+// Function to search for a student by name
+void searchbyname()
+{
+    char na[30];
+    int f = 0;
+    printf("Enter a name to search:");
+    fflush(stdin);
+    gets(na);
+    printf("%-30s %-20s %-10s\n", "Name", "Class", "Rollno");
+    fp = fopen("Just.txt", "rb");
+
+    if(fp == NULL)
+    {
+        printf("File cannot be opened or created.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp) == 1)
+        {
+            if(strcmpi(na, s.name) == 0)
+            {
+                f = 1;
+                printf("%-30s %-20s %-10d\n", s.name, s.cl, s.rollno);
+                break;
+            }
+        }
+    }
+    fclose(fp);
+
+    if(f == 0)
+    {
+        printf("Record not found.\n");
+    }
+    else
+    {
+        printf("Record found successfully!\n");
+    }
+}
+
+// Function to modify student information
+void modify()
+{
+    int R1, f = 0;
+    printf("Enter a roll no to modify:");
+    scanf("%d", &R1);
+
+    fp = fopen("Just.txt", "rb+");
+    if(fp == NULL)
+    {
+        printf("File cannot be created or opened.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp) == 1)
+        {
+            if(R1 == s.rollno)
+            {
+                f = 1;
+                printf("Enter new name: ");
+                fflush(stdin);
+                gets(s.name);
+                printf("Enter new class: ");
+                fflush(stdin);
+                gets(s.cl);
+                printf("Enter new roll no: ");
+                scanf("%d", &s.rollno);
+                fseek(fp, -size, 1);
+                fwrite(&s, size, 1, fp);
+                fclose(fp);
+                break;
+            }
+        }
+    }
+    fclose(fp);
+
+    if(f == 0)
+    {
+        printf("Record is not found.\n");
+    }
+    else
+    {
+        printf("Record modified successfully!\n");
+    }
+}
+
+// Function to delete a student record
+void del()
+{
+    int RtoD, f = 0;
+    printf("Enter a roll no to delete:");
+    scanf("%d", &RtoD);
+
+    FILE *Ftemp;
+    fp = fopen("Just.txt", "rb");
+    Ftemp = fopen("tyre.txt", "ab");
+
+    if(fp == NULL)
+    {
+        printf("File cannot be created or opened.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp)==1)
+        {
+            if(RtoD == s.rollno)
+            {
+                f = 1;
+            }
+            else
+            {
+                fwrite(&s, size, 1, Ftemp);
+            }
+        }
+    }
+
+    fclose(fp);
+    fclose(Ftemp);
+    remove("Just.txt");
+    rename("tyre.txt", "Just.txt");
+
+    if(f==0)
+    {
+        printf("Record is not found.\n");
+    }
+    else
+    {
+        printf("Record deleted successfully!\n");
+    }
+}
+
+// Function to sort student records by roll number
+void sortbyroll()
+{
+    int i, j, c = 0;
+    struct student s1[300], t;
+    system("cls");
+    printf("<== Sort by roll no ==>\n");
+    printf("%-30s %-20s %-10s\n", "Name", "Class", "Rollno");
+    fp = fopen("Just.txt", "rb");
+    if(fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp) == 1)
+        {
+            s1[c++] = s;
+        }
+
+        for(i = 0; i < c-1; i++)
+        {
+            for(j = i + 1; j < c; j++)
+            {
+                if(s1[i].rollno > s1[j].rollno)
+                {
+                    t = s1[i];
+                    s1[i] = s1[j];
+                    s1[j] = t;
+                }
+            }
+        }
+    }
+
+    for(i = 0; i <c; i++)
+    {
+        printf("%-30s %-20s %-10d\n", s1[i].name, s1[i].cl, s1[i].rollno);
+    }
+    fclose(fp);
+}
+
+// Function to sort student records by name
+void sortbyalphabet()
+{
+    int i, j, c = 0;
+    struct student s1[300], t;
+    system("cls");
+    printf("<== Sort by name ==>\n");
+    printf("%-30s %-20s %-10s\n", "Name", "Class", "Rollno");
+    fp = fopen("Just.txt", "rb");
+    if(fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+    }
+    else
+    {
+        struct student s;
+        while(fread(&s, size, 1, fp)== 1)
+        {
+            s1[c++] = s;
+        }
+
+        for(i = 0; i < c-1; i++)
+        {
+            for(j = i+1; j<c; j++)
+            {
+                if(strcmp(s1[i].name, s1[j].name) > 0)
+                {
+                    t = s1[i];
+                    s1[i] = s1[j];
+                    s1[j] = t;
+                }
+            }
+        }
+    }
+
+    for(i = 0; i< c; i++)
+    {
+      printf("%-30s %-20s %-10d\n", s1[i].name, s1[i].cl, s1[i].rollno);
+    }
+    fclose(fp);
+}
